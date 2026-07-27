@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "EmailJS env vars not configured" });
     }
 
-    const params = { email };
+    const params = { email, "g-recaptcha-response": recaptchaToken };
 
     const emailRes = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
       method: "POST",
