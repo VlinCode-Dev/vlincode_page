@@ -89,13 +89,14 @@ function initContactForm() {
           recaptchaToken: recaptchaResponse.value,
         }),
       });
+      const data = await res.json();
       if (res.ok) {
         success = true;
       } else {
-        errorMsg = "Error, intenta de nuevo";
+        errorMsg = data.error || "Server error";
       }
     } catch (err) {
-      errorMsg = "Error de red";
+      errorMsg = err.message;
     }
 
     if (typeof grecaptcha !== "undefined") {
