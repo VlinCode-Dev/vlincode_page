@@ -39,9 +39,9 @@ export default async function handler(req, res) {
 
     const serviceId = process.env.EMAILJS_SERVICE_ID;
     const templateClient = process.env.EMAILJS_TEMPLATE_CLIENT;
-    const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+    const privateKey = process.env.EMAILJS_PRIVATE_KEY;
 
-    if (!serviceId || !templateClient || !publicKey) {
+    if (!serviceId || !templateClient || !privateKey) {
       return res.status(500).json({ error: "EmailJS env vars not configured" });
     }
 
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         service_id: serviceId,
         template_id: templateClient,
-        user_id: publicKey,
+        private_key: privateKey,
         template_params: params,
       }),
     });
