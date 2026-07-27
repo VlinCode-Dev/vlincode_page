@@ -71,7 +71,8 @@ resenas.forEach((r) => {
 const reviewsSwiper = new Swiper(".reviewsSwiper", {
   slidesPerView: 1,
   spaceBetween: 20,
-  loop: true,
+  loop: false,
+  centerInsufficientSlides: true,
   autoplay: { delay: 4000, disableOnInteraction: false },
   pagination: { el: ".reviews-pagination", clickable: true },
   navigation: {
