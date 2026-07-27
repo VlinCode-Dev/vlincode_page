@@ -93,10 +93,10 @@ function initContactForm() {
       if (res.ok) {
         success = true;
       } else {
-        errorMsg = data.error + (data.body ? ": " + data.body : "");
+        errorMsg = "Error, intenta de nuevo";
       }
     } catch (err) {
-      errorMsg = err.message;
+      errorMsg = "Error de red";
     }
 
     if (typeof grecaptcha !== "undefined") {
