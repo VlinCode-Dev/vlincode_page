@@ -1,25 +1,14 @@
 /**
  * VlinCode - Main JavaScript
- * Handles: mobile menu toggle, form submission with EmailJS, smooth scroll,
- *          animated counters (stats) and Swiper portfolio slider
+ * Handles: mobile menu toggle, form submission via serverless API,
+ *          smooth scroll, animated counters and Swiper portfolio slider
  */
-
-// ==========================================================================
-// EmailJS Configuration
-// ==========================================================================
-
-const EMAILJS_PUBLIC_KEY = "LZNwN5BR1LuxyxsWF";
-const EMAILJS_SERVICE_ID = "service_1p3cf9q";
-const EMAILJS_TEMPLATE_ENTERPRISE = "template_3fl9vkl"; // Correo a tu empresa
-const EMAILJS_TEMPLATE_CLIENT = "template_cet73uq"; // Confirmación al cliente
 
 // ==========================================================================
 // DOM Ready
 // ==========================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  emailjs.init(EMAILJS_PUBLIC_KEY);
-
   initMobileMenu();
   initContactForm();
   initSmoothScrollLinks();
@@ -32,10 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // Mobile Menu Toggle
 // ==========================================================================
 
-/**
- * Toggles the mobile navigation menu visibility
- * Uses the hamburger button in the header
- */
 function initMobileMenu() {
   const menuBtn = document.querySelector(".mobile-menu-btn");
   const mobileNav = document.querySelector(".mobile-nav");
@@ -45,15 +30,10 @@ function initMobileMenu() {
   menuBtn.addEventListener("click", () => {
     const isOpen = mobileNav.classList.toggle("open");
     menuBtn.classList.toggle("active", isOpen);
-
-    // Update aria-expanded for accessibility
     menuBtn.setAttribute("aria-expanded", isOpen);
-
-    // Toggle body scroll when menu is open
     document.body.style.overflow = isOpen ? "hidden" : "";
   });
 
-  // Close menu when clicking a nav link
   mobileNav.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => {
       mobileNav.classList.remove("open");
@@ -65,13 +45,9 @@ function initMobileMenu() {
 }
 
 // ==========================================================================
-// Contact Form Handler (EmailJS)
+// Contact Form Handler (Serverless API)
 // ==========================================================================
 
-/**
- * Handles the CTA form submission using EmailJS
- * Sends two emails: one to enterprise, one confirmation to client
- */
 function initContactForm() {
   const form = document.querySelector(".cta-form");
 
@@ -84,66 +60,48 @@ function initContactForm() {
     const btn = form.querySelector("button");
     const email = emailInput?.value.trim();
 
-    // Basic email validation
     if (!email || !isValidEmail(email)) {
       shakeElement(emailInput);
       return;
     }
 
-    // Validate reCAPTCHA
-    const recaptchaResponse = document.querySelector(".g-recaptcha textarea[name='g-recaptcha-response']");
+    const recaptchaResponse = document.querySelector(
+      ".g-recaptcha textarea[name='g-recaptcha-response']",
+    );
     if (!recaptchaResponse || !recaptchaResponse.value) {
       shakeElement(form.querySelector(".g-recaptcha"));
       return;
     }
 
-    // Disable button and show loading state
     const originalText = btn.textContent;
     btn.textContent = "Enviando...";
     btn.disabled = true;
 
-    const templateParams = {
-      email: email,
-      reply_to: email,
-      "g-recaptcha-response": recaptchaResponse.value,
-    };
+    let success = false;
 
-    let enterpriseOk = false;
-
-    // Send email to enterprise
     try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ENTERPRISE,
-        templateParams,
-      );
-      enterpriseOk = true;
-    } catch (err) {
-      // Enterprise email failed
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          recaptchaToken: recaptchaResponse.value,
+        }),
+      });
+      if (res.ok) success = true;
+    } catch {
+      // Network error
     }
 
-    // Send confirmation email to client
-    try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_CLIENT,
-        templateParams,
-      );
-    } catch (err) {
-      // Client email failed
-    }
-
-    // Reset reCAPTCHA after submission
     if (typeof grecaptcha !== "undefined") {
       grecaptcha.reset();
     }
 
-    // Feedback
-    if (enterpriseOk) {
+    if (success) {
       btn.textContent = "¡Enviado!";
       emailInput.value = "";
     } else {
-      btn.textContent = "Error. Revisa la consola (F12)";
+      btn.textContent = "Error, intenta de nuevo";
     }
 
     setTimeout(() => {
@@ -153,19 +111,10 @@ function initContactForm() {
   });
 }
 
-/**
- * Validates email format using regex
- * @param {string} email
- * @returns {boolean}
- */
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-/**
- * Adds a shake animation to an element for validation feedback
- * @param {HTMLElement} element
- */
 function shakeElement(element) {
   if (!element) return;
   element.style.animation = "shake 0.5s ease";
@@ -182,10 +131,6 @@ function shakeElement(element) {
 // Smooth Scroll for Anchor Links
 // ==========================================================================
 
-/**
- * Adds smooth scroll behavior to all anchor links
- * Handles offset for the fixed header
- */
 function initSmoothScrollLinks() {
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", (e) => {
@@ -213,11 +158,6 @@ function initSmoothScrollLinks() {
 // Animated Counters (Stats Section)
 // ==========================================================================
 
-/**
- * Animates number counters in the stats section when they scroll into view.
- * Uses IntersectionObserver to trigger each counter only once.
- * Each counter reads its final value from a `data-target` attribute.
- */
 function initCounters() {
   const counters = document.querySelectorAll(".counter");
   const speed = 80;
@@ -251,7 +191,6 @@ function initCounters() {
     updateCount();
   };
 
-  // Observe counters and start counting when they enter the viewport (30% visible)
   const observer = new IntersectionObserver(
     (entries, observer) => {
       entries.forEach((entry) => {
@@ -271,11 +210,6 @@ function initCounters() {
 // Swiper Portfolio Slider
 // ==========================================================================
 
-/**
- * Initializes the Swiper carousel for the portfolio section.
- * Displays 1 slide on mobile, 2 on tablets, 3 on desktop.
- * Includes auto-play, looping, and clickable pagination.
- */
 function initSwiperSlider() {
   new Swiper(".mySwiper", {
     slidesPerView: 1,
@@ -304,22 +238,29 @@ function initSwiperSlider() {
 }
 
 // ==========================================================================
-// ANIMATED TITLE TEXT
+// ANIMATED TITLE TEXT (safe DOM manipulation)
 // ==========================================================================
+
 function initAnimatedTitle() {
   const titulo = document.getElementById("titulo-animado");
+  if (!titulo) return;
 
   const texto = "Convertimos ideas en webs y tiendas online que ";
   const azul = "venden.";
+
+  const span = document.createElement("span");
+  span.className = "texto-gradiente";
 
   let i = 0;
 
   function escribirTexto() {
     if (i <= texto.length) {
-      titulo.innerHTML = texto.substring(0, i);
+      titulo.textContent = texto.substring(0, i);
       i++;
       setTimeout(escribirTexto, 45);
     } else {
+      titulo.textContent = texto;
+      titulo.appendChild(span);
       escribirAzul();
     }
   }
@@ -328,12 +269,7 @@ function initAnimatedTitle() {
 
   function escribirAzul() {
     if (j <= azul.length) {
-      titulo.innerHTML =
-        texto +
-        '<span class="texto-gradiente">' +
-        azul.substring(0, j) +
-        "</span>";
-
+      span.textContent = azul.substring(0, j);
       j++;
       setTimeout(escribirAzul, 45);
     }

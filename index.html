@@ -20,6 +20,8 @@
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+      integrity="sha384-gAPqlBuTCdtVcYt9ocMOYWrnBZ4XSL6q+4eXqwNycOr4iFczhNKtnYhF3NEXJM51"
+      crossorigin="anonymous"
     />
 
     <!-- Tailwind CSS -->
@@ -48,9 +50,6 @@
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
       rel="stylesheet"
     />
-
-    <!-- EmailJS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
     <!-- Google reCAPTCHA v2 -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
@@ -693,6 +692,8 @@
                   class="w-full bg-surface/50 border border-on-primary-container/20 text-on-surface rounded p-4 font-body-md placeholder-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary backdrop-blur-sm"
                   placeholder="Tu correo electrónico"
                   type="email"
+                  maxlength="254"
+                  autocomplete="email"
                   required
                 />
                 <div class="g-recaptcha recaptcha-container" data-sitekey="6LeghGgtAAAAAA4bt5wlksEJJcOEU0u-aT5IuTMP"></div>
@@ -762,7 +763,9 @@
     </footer>
 
     <!-- Swiper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"
+      integrity="sha384-2UI1PfnXFjVMQ7/ZDEF70CR943oH3v6uZrFQGGqJYlvhh4g6z6uVktxYbOlAczav"
+      crossorigin="anonymous"></script>
 
     <!-- Main JS -->
     <script src="js/main.js"></script>
