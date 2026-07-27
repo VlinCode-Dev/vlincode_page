@@ -1,87 +1,101 @@
 module.exports = async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  const { email, recaptchaToken } = req.body;
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({ error: "Invalid email" });
-  }
-
-  if (!recaptchaToken) {
-    return res.status(400).json({ error: "reCAPTCHA token required" });
-  }
-
-  const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-  if (!recaptchaSecret) {
-    return res.status(500).json({ error: "Server configuration error" });
-  }
-
   try {
-    const verifyRes = await fetch(
-      "https://www.google.com/recaptcha/api/siteverify",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `secret=${encodeURIComponent(recaptchaSecret)}&response=${encodeURIComponent(recaptchaToken)}`,
-      },
-    );
-    const verifyData = await verifyRes.json();
-
-    if (!verifyData.success || (verifyData.score !== undefined && verifyData.score < 0.5)) {
-      return res.status(403).json({ error: "reCAPTCHA verification failed" });
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
     }
-  } catch {
-    return res.status(500).json({ error: "reCAPTCHA verification error" });
-  }
 
-  const emailjsServiceId = process.env.EMAILJS_SERVICE_ID;
-  const emailjsTemplateEnterprise = process.env.EMAILJS_TEMPLATE_ENTERPRISE;
-  const emailjsTemplateClient = process.env.EMAILJS_TEMPLATE_CLIENT;
-  const emailjsPublicKey = process.env.EMAILJS_PUBLIC_KEY;
+    const { email, recaptchaToken } = req.body || {};
 
-  if (!emailjsServiceId || !emailjsTemplateEnterprise || !emailjsPublicKey) {
-    return res.status(500).json({ error: "Email configuration error" });
-  }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "Invalid email" });
+    }
 
-  let enterpriseOk = false;
+    if (!recaptchaToken) {
+      return res.status(400).json({ error: "reCAPTCHA token required" });
+    }
 
-  try {
-    const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        service_id: emailjsServiceId,
-        template_id: emailjsTemplateEnterprise,
-        user_id: emailjsPublicKey,
-        template_params: { email, reply_to: email },
-      }),
-    });
-    if (response.ok) enterpriseOk = true;
-  } catch {
-    // Enterprise email failed
-  }
+    var recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+    if (!recaptchaSecret) {
+      return res.status(500).json({ error: "RECAPTCHA_SECRET_KEY not configured" });
+    }
 
-  if (emailjsTemplateClient) {
+    var verifyRes;
     try {
-      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+      verifyRes = await fetch(
+        "https://www.google.com/recaptcha/api/siteverify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "secret=" + encodeURIComponent(recaptchaSecret) + "&response=" + encodeURIComponent(recaptchaToken),
+        },
+      );
+    } catch (fetchErr) {
+      return res.status(500).json({ error: "Failed to reach reCAPTCHA: " + fetchErr.message });
+    }
+
+    var verifyData;
+    try {
+      verifyData = await verifyRes.json();
+    } catch (parseErr) {
+      return res.status(500).json({ error: "Invalid reCAPTCHA response" });
+    }
+
+    if (!verifyData.success) {
+      return res.status(403).json({ error: "reCAPTCHA verification failed", details: verifyData["error-codes"] });
+    }
+
+    var emailjsServiceId = process.env.EMAILJS_SERVICE_ID;
+    var emailjsTemplateEnterprise = process.env.EMAILJS_TEMPLATE_ENTERPRISE;
+    var emailjsTemplateClient = process.env.EMAILJS_TEMPLATE_CLIENT;
+    var emailjsPublicKey = process.env.EMAILJS_PUBLIC_KEY;
+
+    if (!emailjsServiceId || !emailjsTemplateEnterprise || !emailjsPublicKey) {
+      return res.status(500).json({ error: "Email env vars not configured" });
+    }
+
+    var templateParams = { email: email, reply_to: email };
+    var enterpriseOk = false;
+
+    try {
+      var response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           service_id: emailjsServiceId,
-          template_id: emailjsTemplateClient,
+          template_id: emailjsTemplateEnterprise,
           user_id: emailjsPublicKey,
-          template_params: { email, reply_to: email },
+          template_params: templateParams,
         }),
       });
-    } catch {
-      // Client email failed
+      if (response.ok) {
+        enterpriseOk = true;
+      } else {
+        var errBody = await response.text();
+        return res.status(500).json({ error: "EmailJS enterprise failed", status: response.status, body: errBody });
+      }
+    } catch (emailErr) {
+      return res.status(500).json({ error: "EmailJS enterprise error: " + emailErr.message });
     }
-  }
 
-  if (enterpriseOk) {
+    if (emailjsTemplateClient) {
+      try {
+        await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            service_id: emailjsServiceId,
+            template_id: emailjsTemplateClient,
+            user_id: emailjsPublicKey,
+            template_params: templateParams,
+          }),
+        });
+      } catch (_err) {
+        // Client confirmation email is optional
+      }
+    }
+
     return res.status(200).json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Unexpected error: " + err.message });
   }
-  return res.status(500).json({ error: "Failed to send email" });
-}
+};
