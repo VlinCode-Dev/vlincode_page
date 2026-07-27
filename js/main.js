@@ -78,6 +78,7 @@ function initContactForm() {
     btn.disabled = true;
 
     let success = false;
+    let errorMsg = "";
 
     try {
       const res = await fetch("/api/contact", {
@@ -88,9 +89,14 @@ function initContactForm() {
           recaptchaToken: recaptchaResponse.value,
         }),
       });
-      if (res.ok) success = true;
-    } catch {
-      // Network error
+      const data = await res.json();
+      if (res.ok) {
+        success = true;
+      } else {
+        errorMsg = data.error || "Server error";
+      }
+    } catch (err) {
+      errorMsg = err.message;
     }
 
     if (typeof grecaptcha !== "undefined") {
@@ -101,7 +107,7 @@ function initContactForm() {
       btn.textContent = "¡Enviado!";
       emailInput.value = "";
     } else {
-      btn.textContent = "Error, intenta de nuevo";
+      btn.textContent = errorMsg || "Error, intenta de nuevo";
     }
 
     setTimeout(() => {
