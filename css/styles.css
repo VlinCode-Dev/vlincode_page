@@ -1,46 +1,31 @@
 /* ==========================================================================
-   CodeNexo - Custom Styles
+   VlinCode - Custom Styles
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   Custom Utilities (converted from Tailwind @apply directives)
-   These replicate the original glass-panel, text-gradient, and smooth-scroll
-   utilities using the project's color tokens.
+   Custom Utilities
    -------------------------------------------------------------------------- */
 
 /* Glass Panel - Frosted glass effect for cards and overlays */
 .glass-panel {
-  background-color: rgba(5, 20, 36, 0.5); /* surface at 50% opacity */
-  backdrop-filter: blur(24px); /* backdrop-blur-xl */
+  background-color: rgba(5, 20, 36, 0.5);
+  backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(67, 70, 86, 0.2); /* outline-variant at 20% */
+  border: 1px solid rgba(67, 70, 86, 0.2);
   box-shadow:
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1); /* shadow-lg */
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
-/* Text Gradient - Electric blue gradient for headings */
-.text-gradient {
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(
-    to right,
-    #b7c4ff,
-    #0052ff
-  ); /* primary to primary-container */
-}
-
-/* Smooth Scroll - Smooth anchor navigation */
+/* Smooth Scroll */
 .smooth-scroll {
   scroll-behavior: smooth;
 }
 
 /* --------------------------------------------------------------------------
-   Component Styles - Additional non-Tailwind styles
+   Mobile Menu
    -------------------------------------------------------------------------- */
 
-/* Mobile menu toggle animation */
 .mobile-menu-btn {
   transition: transform 0.2s ease;
 }
@@ -49,53 +34,36 @@
   transform: rotate(90deg);
 }
 
-/* Form input focus glow */
-.form-input:focus {
-  box-shadow: 0 0 0 2px rgba(183, 196, 255, 0.3); /* primary glow */
+.mobile-nav.open {
+  display: flex;
 }
 
 /* --------------------------------------------------------------------------
-   Responsive Overrides
+   Shake Animation (form validation)
    -------------------------------------------------------------------------- */
 
-@media (max-width: 768px) {
-  .hero-mockup {
-    height: 500px;
-  }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
 }
 
-@media (min-width: 1024px) {
-  .hero-mockup {
-    height: 700px;
-  }
-}
-/* Animación del salto */
+/* --------------------------------------------------------------------------
+   Counter Animations
+   -------------------------------------------------------------------------- */
+
 @keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-12px);
-  } /* Saltito un poquito más alto */
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 
-/* Animación del destello brillante (recorrido del reflejo) */
 @keyframes flash {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
-/* NUEVA animación para hacer que todo el número resplandezca/brille hacia afuera */
 @keyframes glow-pulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
-  }
+  0%, 100% { filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
   50% {
     filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.9))
       drop-shadow(0 0 5px rgba(183, 196, 255, 0.8));
@@ -106,9 +74,7 @@
   animation: bounce 0.5s ease-out;
 }
 
-/* Efecto de destello ULTRA-MEJORADO */
 .flash-effect {
-  /* Hacemos la franja blanca central del degradado mucho más ancha y brillante */
   background: linear-gradient(
     90deg,
     #b7c4ff 0%,
@@ -121,23 +87,18 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-
-  /* Combinamos el destello interior con un resplandor exterior gigante */
   animation:
     flash 0.7s ease-in-out,
     glow-pulse 0.7s ease-in-out;
 }
-/* ==========================================
-   Efecto de Movimiento de Logos Infinito
-   ========================================== */
+
+/* --------------------------------------------------------------------------
+   Logo Marquee
+   -------------------------------------------------------------------------- */
 
 @keyframes scroll-logos {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
 }
 
 .logo-track {
@@ -165,21 +126,18 @@
   );
 }
 
-.swiper-slide img {
-  width: 200px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
+/* --------------------------------------------------------------------------
+   Swiper
+   -------------------------------------------------------------------------- */
 
 .swiper {
   width: 100%;
   max-width: 1200px;
 }
 
-/* ==========================================
-   Review Card Carousel Styles
-   ========================================== */
+/* --------------------------------------------------------------------------
+   Review Card Carousel
+   -------------------------------------------------------------------------- */
 
 .reviewsSwiper {
   width: 100%;
@@ -209,7 +167,6 @@
   font-size: 16px;
 }
 
-/* Line clamp utility for review text */
 .line-clamp-4 {
   display: -webkit-box;
   -webkit-line-clamp: 4;
@@ -217,19 +174,28 @@
   overflow: hidden;
 }
 
-/* Asegúrate de que el fondo de tu contenedor sea oscuro para que el blanco sea visible */
-#titulo-animado {
-  color: #ffffff;
-  font-size: 4rem; /* Ajusta el tamaño a tu diseño */
-  font-family: sans-serif;
-}
+/* --------------------------------------------------------------------------
+   Animated Title Gradient
+   -------------------------------------------------------------------------- */
 
-/* Esta clase controla el degradado de la palabra "venden" */
 .texto-gradiente {
   background-image: linear-gradient(to right, #ffffff, #0055ff);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  display: inline-block; /* Requerido para que el degradado se aplique correctamente */
+  display: inline-block;
+}
+
+/* --------------------------------------------------------------------------
+   reCAPTCHA Widget
+   -------------------------------------------------------------------------- */
+
+.recaptcha-container {
+  display: flex;
+  justify-content: center;
+}
+
+.recaptcha-container iframe {
+  max-width: 100%;
 }

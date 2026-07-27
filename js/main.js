@@ -9,7 +9,7 @@
 // ==========================================================================
 
 const EMAILJS_PUBLIC_KEY = "LZNwN5BR1LuxyxsWF";
-const EMAILJS_SERVICE_ID = "service_cqcoh5o";
+const EMAILJS_SERVICE_ID = "service_1p3cf9q";
 const EMAILJS_TEMPLATE_ENTERPRISE = "template_3fl9vkl"; // Correo a tu empresa
 const EMAILJS_TEMPLATE_CLIENT = "template_cet73uq"; // Confirmación al cliente
 
@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSmoothScrollLinks();
   initCounters();
   initSwiperSlider();
+  initAnimatedTitle();
 });
 
 // ==========================================================================
@@ -89,36 +90,52 @@ function initContactForm() {
       return;
     }
 
+    // Validate reCAPTCHA
+    const recaptchaResponse = document.querySelector(".g-recaptcha textarea[name='g-recaptcha-response']");
+    if (!recaptchaResponse || !recaptchaResponse.value) {
+      shakeElement(form.querySelector(".g-recaptcha"));
+      return;
+    }
+
     // Disable button and show loading state
     const originalText = btn.textContent;
     btn.textContent = "Enviando...";
     btn.disabled = true;
 
+    const templateParams = {
+      email: email,
+      reply_to: email,
+      "g-recaptcha-response": recaptchaResponse.value,
+    };
+
     let enterpriseOk = false;
 
     // Send email to enterprise
     try {
-      const enterpriseResult = await emailjs.send(
+      await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ENTERPRISE,
-        { email: email, reply_to: email },
+        templateParams,
       );
-      console.log("Enterprise email sent:", enterpriseResult);
       enterpriseOk = true;
     } catch (err) {
-      console.error("Enterprise email FAILED:", err.status, err.text);
+      // Enterprise email failed
     }
 
     // Send confirmation email to client
     try {
-      const clientResult = await emailjs.send(
+      await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_CLIENT,
-        { email: email, reply_to: email },
+        templateParams,
       );
-      console.log("Client email sent:", clientResult);
     } catch (err) {
-      console.error("Client email FAILED:", err.status, err.text);
+      // Client email failed
+    }
+
+    // Reset reCAPTCHA after submission
+    if (typeof grecaptcha !== "undefined") {
+      grecaptcha.reset();
     }
 
     // Feedback
@@ -203,12 +220,19 @@ function initSmoothScrollLinks() {
  */
 function initCounters() {
   const counters = document.querySelectorAll(".counter");
-  const speed = 80; // Number of animation steps
+  const speed = 80;
 
   if (!counters.length) return;
 
+  const formats = {
+    2: (v) => `+${v}`,
+    100: (v) => `${v}%`,
+    1: (v) => `${v}+`,
+  };
+
   const startCounting = (counter) => {
     const target = +counter.getAttribute("data-target");
+    const format = formats[target] || ((v) => `${v}`);
 
     const updateCount = () => {
       const currentText = counter.innerText.replace(/[^0-9]/g, "");
@@ -216,25 +240,10 @@ function initCounters() {
       const increment = Math.ceil(target / speed);
 
       if (count < target) {
-        const nextValue = count + increment;
-        const finalValue = Math.min(nextValue, target);
-
-        // Format the display based on the counter type
-        if (target === 3) {
-          counter.innerText = `+${finalValue}`;
-        } else if (target === 100) {
-          counter.innerText = `${finalValue}%`;
-        } else if (target === 1) {
-          counter.innerText = `${finalValue}+`;
-        }
-
+        counter.innerText = format(Math.min(count + increment, target));
         setTimeout(updateCount, 25);
       } else {
-        // Set final value and trigger visual feedback animations
-        if (target === 3) counter.innerText = `+${target}`;
-        if (target === 100) counter.innerText = `${target}%`;
-        if (target === 1) counter.innerText = `${target}+`;
-
+        counter.innerText = format(target);
         counter.classList.add("bounce-effect", "flash-effect");
       }
     };
@@ -271,7 +280,8 @@ function initSwiperSlider() {
   new Swiper(".mySwiper", {
     slidesPerView: 1,
     spaceBetween: 20,
-    loop: true,
+    loop: false,
+    centerInsufficientSlides: true,
     autoplay: {
       delay: 3000,
       disableOnInteraction: false,
@@ -296,7 +306,7 @@ function initSwiperSlider() {
 // ==========================================================================
 // ANIMATED TITLE TEXT
 // ==========================================================================
-document.addEventListener("DOMContentLoaded", () => {
+function initAnimatedTitle() {
   const titulo = document.getElementById("titulo-animado");
 
   const texto = "Convertimos ideas en webs y tiendas online que ";
@@ -318,7 +328,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function escribirAzul() {
     if (j <= azul.length) {
-      // Reemplazamos 'text-primary' por 'texto-gradiente' para el efecto
       titulo.innerHTML =
         texto +
         '<span class="texto-gradiente">' +
@@ -331,4 +340,4 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   escribirTexto();
-});
+}
