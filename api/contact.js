@@ -55,7 +55,7 @@ export default async function handler(req, res) {
         service_id: serviceId,
         template_id: templateClient,
         user_id: publicKey,
-        private_key: privateKey,
+        accessToken: privateKey,
         template_params: params,
       }),
     });
