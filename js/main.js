@@ -89,17 +89,14 @@ function initContactForm() {
           recaptchaToken: recaptchaResponse.value,
         }),
       });
-      const data = await res.json();
       if (res.ok) {
         success = true;
       } else {
-        errorMsg = data.error + (data.body ? " — " + data.body : "");
+        errorMsg = "Error, intenta de nuevo";
       }
     } catch (err) {
-      errorMsg = err.message;
+      errorMsg = "Error de red";
     }
-
-    console.log("Contact error:", errorMsg);
 
     if (typeof grecaptcha !== "undefined") {
       grecaptcha.reset();
@@ -109,7 +106,7 @@ function initContactForm() {
       btn.textContent = "¡Enviado!";
       emailInput.value = "";
     } else {
-      btn.textContent = (errorMsg || "Error").slice(0, 60);
+      btn.textContent = errorMsg || "Error, intenta de nuevo";
     }
 
     setTimeout(() => {
