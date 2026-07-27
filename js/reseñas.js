@@ -19,7 +19,7 @@ const resenas = [
   },
   {
     nombre: "Duvan Rico",
-    empresa: "Independiente",
+    empresa: "Independiente.",
     rating: 5,
     mensaje:
       "Destaco principalmente su responsabilidad y transparencia. Los tiempos de entrega se realizan a tiempo y con la calidad esperada.",
@@ -34,7 +34,8 @@ resenas.forEach((r) => {
   slide.className = "swiper-slide";
 
   const card = document.createElement("div");
-  card.className = "review-card p-8 rounded-xl bg-surface-container-high border border-outline-variant/20 hover:border-primary/50 transition-colors duration-300 flex flex-col gap-4";
+  card.className =
+    "review-card p-8 rounded-xl bg-surface-container-high border border-outline-variant/20 hover:border-primary/50 transition-colors duration-300 flex flex-col gap-4";
 
   const header = document.createElement("div");
   header.className = "flex flex-col";
@@ -56,7 +57,8 @@ resenas.forEach((r) => {
   stars.textContent = "\u2B50".repeat(r.rating);
 
   const mensaje = document.createElement("p");
-  mensaje.className = "text-on-surface-variant text-sm leading-relaxed line-clamp-4";
+  mensaje.className =
+    "text-on-surface-variant text-sm leading-relaxed line-clamp-4";
   mensaje.textContent = r.mensaje;
 
   card.appendChild(header);
