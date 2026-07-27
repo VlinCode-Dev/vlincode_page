@@ -93,7 +93,7 @@ function initContactForm() {
       if (res.ok) {
         success = true;
       } else {
-        errorMsg = data.error || "Server error";
+        errorMsg = data.error + (data.body ? ": " + data.body : "");
       }
     } catch (err) {
       errorMsg = err.message;
