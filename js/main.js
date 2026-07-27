@@ -93,11 +93,13 @@ function initContactForm() {
       if (res.ok) {
         success = true;
       } else {
-        errorMsg = data.error || "Server error";
+        errorMsg = data.error + (data.body ? " — " + data.body : "");
       }
     } catch (err) {
       errorMsg = err.message;
     }
+
+    console.log("Contact error:", errorMsg);
 
     if (typeof grecaptcha !== "undefined") {
       grecaptcha.reset();
@@ -107,7 +109,7 @@ function initContactForm() {
       btn.textContent = "¡Enviado!";
       emailInput.value = "";
     } else {
-      btn.textContent = errorMsg || "Error, intenta de nuevo";
+      btn.textContent = (errorMsg || "Error").slice(0, 60);
     }
 
     setTimeout(() => {
