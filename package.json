@@ -1,0 +1,17 @@
+{
+  "name": "vlincode_page",
+  "version": "1.0.0",
+  "description": "Página web institucional de VlinCode, agencia de desarrollo digital.",
+  "scripts": {
+    "build": "npx tailwindcss -i ./src/input.css -o ./css/output.css --minify",
+    "dev": "npx tailwindcss -i ./src/input.css -o ./css/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.5.4",
+    "postcss": "^8.5.23",
+    "tailwindcss": "^3.4.19"
+  }
+}
